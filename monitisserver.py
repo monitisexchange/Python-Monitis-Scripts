@@ -10,12 +10,14 @@ Copyright (c) 2011 Monitis. All rights reserved.
 import sys
 import os
 import unittest
+import urllib
 import urllib2
 from elementtree.ElementTree import ElementTree # not in the standard library
 import StringIO
 import hashlib
 import hmac
 import base64
+import datetime
 
 class MonitisServer():
     def __init__(self, apiKey, apiSecret, 
@@ -61,19 +63,11 @@ class MonitisServer():
         return base64.b64encode(str(hmac.new(self.apiSecret,checksumStr,
                                              hashlib.sha1).digest()))
     
-    def formatCurlPostData(self, **kwargs):
-        args = kwargs.items()
-        args.sort()
-        postArgs = ''
-        for key,value in args:
-            postArgs += '--data-urlencode "{k}={v}" '.format(k=key,v=value)
-        return postArgs.rstrip()
-    
     def timestamp(self):
-        return os.popen('date -u +"%F %T"').read().rstrip()
+        return datetime.datetime.utcnow().strftime("%F %T")
         
     def checktime(self):
-        return os.popen('date -u +"%s"000').read().rstrip()
+        return datetime.datetime.utcnow().strftime("%s") + "000"
     
     def monitisPost(self,postArgs):
         # API key, version, etc. will be the same across all calls
@@ -84,13 +78,14 @@ class MonitisServer():
         # calculate a checksum based on the values and secret key
         checkSum=self.checkSum(**postArgs)
         
-        # use curl to post the values, including the calculated checksum
+        # use urllib to post the values
         postArgs['checksum'] = checkSum
-        postData = self.formatCurlPostData(**postArgs)
-
-        curlCmd = "curl -s " + postData + " " + self.url
-        return os.popen(curlCmd).read().rstrip()
-
+        params = urllib.urlencode(postArgs)
+        result = urllib2.urlopen(self.url,params)
+        ret = result.read()
+        result.close()
+        return ret
+        
     def addMonitor(self,name=None,resultParams=None,tag=None):
         postArgs = {'action':'addMonitor',
                     'apikey':self.apiKey,
