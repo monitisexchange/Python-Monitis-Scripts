@@ -64,7 +64,7 @@ def main(argv=None):
         
         # Monitis server will be used for all requests
         monitis = MonitisServer(apiKey, apiSecret)
-                    
+        
         # Do the load averages check, and the add the result to monitis
         loadAverages = os.getloadavg()
         loadAveragesResult = \
