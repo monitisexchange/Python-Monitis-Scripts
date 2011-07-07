@@ -113,7 +113,8 @@ class MonitisServer():
             checkTime = self.checktime()
         
         # if no monitorId was given, retrieve it based on the monitorTag
-        monitorId = self.requestMonitorId(monitorTag)
+        if monitorId is None:
+            monitorId = self.requestMonitorId(monitorTag)
         
         # arguments for the post to monitis
         postArgs = {'version':self.version,'action':action,
