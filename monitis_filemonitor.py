@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-monitis_record_freespace.py
+monitis_filemonitor.py
 
-Created by Jeremiah Shirk on 2011-06-08.
+Created by Jeremiah Shirk on 2011-06-30.
 Copyright (c) 2011 Monitis. All rights reserved.
 """
 
@@ -25,6 +25,7 @@ OPTIONS:
    -m      monitor tag (defaults to loadMonitor)
    -i      monitor id (optional)
    -t      timestamp (defaults to utc now)
+   -c      config file specifies monitor IDs and file paths
 '''
 
 class Usage(Exception):
@@ -85,8 +86,6 @@ def main(argv=None):
                 monitorId = value
             if option in ("-t"):
                 timeStamp = value
-            if option in ("-f"):
-                filePath = value
             if option in ("-c"):
                 config = value
 
@@ -105,7 +104,6 @@ def main(argv=None):
                 # print fileStats(path,int(depth))
                 (size,count) = fileStats(path,int(depth))
                 result = 'size:{0};count:{1}'.format(size,count)
-                print result
                 print monitis.addResult(monitorId=monitorId,result=result)
                 
     except Usage, err:
