@@ -42,8 +42,14 @@ def main(argv=None):
         except getopt.error, msg:
             raise Usage(msg)
 
-        apiKey = None
-        apiSecret = None
+        try:
+            apiKey = os.environ['MONITIS_APIKEY']
+        except:
+            apiKey = None
+        try:
+            apiSecret = os.environ['MONITIS_SECRET']
+        except:
+            apiSecret = None
         monitorTag = None
         monitorName = None
         monitorId = None
