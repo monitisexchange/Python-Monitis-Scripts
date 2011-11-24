@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+# vim: et ts=4 :
 """
 MonitisServer.py
 
@@ -38,6 +39,19 @@ class MonitisServer():
         root = ElementTree(file=StringIO.StringIO(xml)).getroot()
         return root.find('./monitor/id').text
     
+    def dictMonitors(self):
+        ret = {}
+        req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
+                                  '&version={3}&action=getMonitors')\
+            .format(self.url,self.apiKey,self.output,self.version))
+        res = urllib2.urlopen(req)
+        xml = res.read()
+        root = ElementTree(file=StringIO.StringIO(xml)).getroot()
+        for monitor in list(root):
+            ret[monitor.find('name').text)] =
+			monitor.find('id').text,monitor.find('tag').text
+        return ret
+
     def listMonitors(self):
         ret = list()
         req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
