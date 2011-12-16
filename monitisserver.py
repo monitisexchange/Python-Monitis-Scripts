@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# vim: et ts=4 :
 """
 MonitisServer.py
 
@@ -29,7 +28,7 @@ class MonitisServer():
         self.apiSecret = apiSecret
         self.output = output
         self.version = version
-            
+    
     def requestMonitorId(self,monitorTag):
         req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
                                   '&version={3}&action=getMonitors&tag={4}')\
@@ -48,10 +47,10 @@ class MonitisServer():
         xml = res.read()
         root = ElementTree(file=StringIO.StringIO(xml)).getroot()
         for monitor in list(root):
-            ret[monitor.find('name').text)] =
-			monitor.find('id').text,monitor.find('tag').text
+            ret[monitor.find('name').text] = \
+            monitor.find('id').text,monitor.find('tag').text
         return ret
-
+    
     def listMonitors(self):
         ret = list()
         req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
@@ -76,10 +75,10 @@ class MonitisServer():
             checksumStr +=value
         return base64.b64encode(str(hmac.new(self.apiSecret,checksumStr,
                                              hashlib.sha1).digest()))
-    
+
     def timestamp(self):
         return datetime.datetime.utcnow().strftime("%F %T")
-        
+    
     def checktime(self):
         return datetime.datetime.utcnow().strftime("%s") + "000"
     
@@ -99,7 +98,7 @@ class MonitisServer():
         ret = result.read()
         result.close()
         return ret
-        
+    
     def addMonitor(self,name=None,resultParams=None,tag=None):
         postArgs = {'action':'addMonitor',
                     'apikey':self.apiKey,
@@ -107,14 +106,14 @@ class MonitisServer():
                     'resultParams':resultParams,
                     'tag':tag}
         return self.monitisPost(postArgs)
-
+    
     def deleteMonitor(self,monitorTag=None,monitorId=None):
         if monitorId is None:
             monitorId = self.requestMonitorId(monitorTag)
         postArgs = {'action':'deleteMonitor',
                     'monitorId':monitorId}
         return self.monitisPost(postArgs)
-        
+    
     # use local curl for the UserAgent
     def addResult(self, monitorId=None, monitorTag=None,
                   result=None, checkTime=None):
@@ -134,7 +133,7 @@ class MonitisServer():
         postArgs = {'version':self.version,'action':action,
                     'apikey':self.apiKey,'checktime':checkTime,
                     'monitorId':monitorId,'results':result}
-
+        
         return self.monitisPost(postArgs)
 
 class MonitisServerTests(unittest.TestCase):
@@ -144,7 +143,7 @@ class MonitisServerTests(unittest.TestCase):
     def testCheckSum(self):
         self.assertEquals(self.monitis.checkSum(key2="foo",key1="bar"),
                           "ML1TdJ/wQc06CdIREtddB19wsKM=")
-    
+
 
 if __name__ == '__main__':
     unittest.main()
