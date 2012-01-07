@@ -55,11 +55,14 @@ class MonitisServer():
     
     def dictMonitors(self):
         ret = {}
-        req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
+        # req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
+        #                           '&version={3}&action=getMonitors')\
+        #     .format(self.url,self.apiKey,self.output,self.version))
+        # res = urllib2.urlopen(req)
+        # xml = res.read()
+        xml = self._apiRequestXml(str('{0}/?apikey={1}&output={2}'+\
                                   '&version={3}&action=getMonitors')\
             .format(self.url,self.apiKey,self.output,self.version))
-        res = urllib2.urlopen(req)
-        xml = res.read()
         root = ElementTree(file=StringIO.StringIO(xml)).getroot()
         for monitor in list(root):
             ret[monitor.find('name').text] = \
