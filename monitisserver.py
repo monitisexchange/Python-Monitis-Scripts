@@ -29,22 +29,35 @@ class MonitisServer():
         self.output = output
         self.version = version
             
+    def _apiRequestXml(self,apiStr):
+        xml = None
+        req = urllib2.Request(apiStr)
+        try:
+            res = urllib2.urlopen(req)
+            xml = res.read()
+        except urllib2.HTTPError, error:
+            msg = error.read()
+            raise Exception("API Error: " + msg)
+        return xml
+
     def requestMonitorId(self,monitorTag):
-        req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
+        xml = self._apiRequestXml(str('{0}/?apikey={1}&output={2}'+\
                                   '&version={3}&action=getMonitors&tag={4}')\
             .format(self.url,self.apiKey,self.output,self.version,monitorTag))
-        res = urllib2.urlopen(req)
-        xml = res.read()
+        print xml
         root = ElementTree(file=StringIO.StringIO(xml)).getroot()
+        monitor = root.find('./monitor/id') # Just the first matching monitor
+        # TODO handle multiple monitors with the same tag
+        # Dependent code assumes that exactly one is returned
+        if monitor is None:
+            raise Exception("No monitors matching " + monitorTag)
         return root.find('./monitor/id').text
     
     def listMonitors(self):
         ret = list()
-        req = urllib2.Request(str('{0}/?apikey={1}&output={2}'+\
-                                  '&version={3}&action=getMonitors')\
+        xml = self._apiRequestXml(str('{0}/?apikey={1}&output={2}'+\
+                                      '&version={3}&action=getMonitors')\
             .format(self.url,self.apiKey,self.output,self.version))
-        res = urllib2.urlopen(req)
-        xml = res.read()
         root = ElementTree(file=StringIO.StringIO(xml)).getroot()
         for monitor in list(root):
             ret.append((monitor.find('id').text,monitor.find('tag').text,
@@ -81,7 +94,11 @@ class MonitisServer():
         # use urllib to post the values
         postArgs['checksum'] = checkSum
         params = urllib.urlencode(postArgs)
-        result = urllib2.urlopen(self.url,params)
+        try:
+            result = urllib2.urlopen(self.url,params)
+        except urllib2.HTTPError, error:
+            msg = error.read()
+            raise Exception("API Error: " + msg) 
         ret = result.read()
         result.close()
         return ret
