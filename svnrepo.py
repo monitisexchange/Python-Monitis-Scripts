@@ -85,6 +85,9 @@ class SvnCommand(RepoCommand):
                 return location
         
         # check cache first
+        # TODO chache invalidation for cases where svnrepo isn't invoked
+        # by cron or something similar, or abstract log results into another
+        # class for supporting multiple queries on one log
         if cache:
             hash = loghash(location,authors)
             if self.log_cache.has_key(hash):
