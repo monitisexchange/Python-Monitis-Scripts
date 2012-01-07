@@ -38,23 +38,20 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "hdla:s:m:i:r:n:", ["help"])
+            opts, args = getopt.getopt(argv[1:], "hdla:s:m:i:r:n:",
+                                       ["help", "sandbox"])
         except getopt.error, msg:
             raise Usage(msg)
 
-        try:
-            apiKey = os.environ['MONITIS_APIKEY']
-        except:
-            apiKey = None
-        try:
-            apiSecret = os.environ['MONITIS_SECRETKEY']
-        except:
-            apiSecret = None
         monitorTag = None
         monitorName = None
         monitorId = None
         resultParams = None
+        apiKey = None
+        apiSecret = None
         action='addMonitor' # default to add, unless we see a -d opt
+        url = None
+        sandbox = False
 
         # option processing
         for option, value in opts:
@@ -77,13 +74,37 @@ def main(argv=None):
                 monitorId = value
             if option in ("-d"):
                 action = 'deleteMonitor'
+            if option in ("--sandbox"):
+                sandbox = True
+                url = 'http://sandbox.monitis.com/customMonitorApi'
         
+        try:
+            if apiKey:
+                pass
+            elif sandbox:
+                apiKey = os.environ['MONITIS_SANDBOX_APIKEY']
+            else:
+                apiKey = os.environ['MONITIS_APIKEY']
+        except:
+            apiKey = None
+        try:
+            if apiSecret:
+                pass
+            elif sandbox:
+                apiSecret = os.environ['MONITIS_SANDBOX_SECRETKEY']
+            else:
+                apiSecret = os.environ['MONITIS_SECRETKEY']
+        except:
+            apiSecret = None
         # cannot continue without the API key and secret
         if ((apiKey is None) or (apiSecret is None)):
             raise Usage("API key and secret must be specified")
 
         # Monitis server will be used for all requests
-        monitis = MonitisServer(apiKey, apiSecret)
+        if url:
+            monitis = MonitisServer(apiKey, apiSecret, url)
+        else:
+            monitis = MonitisServer(apiKey, apiSecret)
         
         if action is 'addMonitor':
             if monitorTag is None or monitorTag is '':
