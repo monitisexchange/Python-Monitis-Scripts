@@ -64,6 +64,7 @@ def main(argv=None):
                 apiKey = value
             if option in ("-l"):
                 action = 'listMonitors'
+                # action = 'dictMonitors'
             if option in ("-s"):
                 apiSecret = value
             if option in ("-m"):
@@ -108,6 +109,8 @@ def main(argv=None):
         elif action is 'listMonitors':
             for monitor in monitis.listMonitors():
                 print "\t".join(monitor)
+        elif action is 'dictMonitors':
+            print monitis.dictMonitors()
     except Usage, err:
         print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
         print >> sys.stderr, "\t for help use --help"
