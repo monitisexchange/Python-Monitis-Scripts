@@ -33,12 +33,15 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "ha:s:m:i:t:",["help"])
+            opts, args = getopt.getopt(argv[1:], "ha:s:m:i:t:",
+                                                ["help", "sandbox"])
         except getopt.error, msg:
             raise Usage(msg)
         
         apiKey = None
         apiSecret = None
+        url = None
+        sandbox = False
         monitorTag = "loadMonitor"
         monitorId = None
         action='addResult'
@@ -57,13 +60,38 @@ def main(argv=None):
                 monitorId = value
             if option in ("-t"):
                 timeStamp = value
+            if option in ("--sandbox"):
+                sandbox = True
+                url = 'http://sandbox.monitis.com/customMonitorApi'
 
         # cannot continue without the API key and secret
+        try:
+            if apiKey:
+                pass
+            elif sandbox:
+                apiKey = os.environ['MONITIS_SANDBOX_APIKEY']
+            else:
+                apiKey = os.environ['MONITIS_APIKEY']
+        except:
+            apiKey = None
+        try:
+            if apiSecret:
+                pass
+            elif sandbox:
+                apiSecret = os.environ['MONITIS_SANDBOX_SECRETKEY']
+            else:
+                apiSecret = os.environ['MONITIS_SECRETKEY']
+        except:
+            apiSecret = None
+        
         if ((apiKey is None) or (apiSecret is None)):
             raise Usage("API key and secret must be specified")
         
         # Monitis server will be used for all requests
-        monitis = MonitisServer(apiKey, apiSecret)
+        if url:
+            monitis = MonitisServer(apiKey, apiSecret, url)
+        else:
+            monitis = MonitisServer(apiKey, apiSecret)
         
         # Do the load averages check, and the add the result to monitis
         loadAverages = os.getloadavg()

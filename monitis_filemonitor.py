@@ -60,12 +60,15 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "ha:s:m:i:t:f:c:",["help"])
+            opts, args = getopt.getopt(argv[1:], "ha:s:m:i:t:f:c:",
+                                                ["help", "sandbox"])
         except getopt.error, msg:
             raise Usage(msg)
         
         apiKey = None
         apiSecret = None
+        sandbox = False
+        url = None
         monitorTag = "loadMonitor"
         monitorId = None
         action='addResult'
@@ -88,13 +91,38 @@ def main(argv=None):
                 timeStamp = value
             if option in ("-c"):
                 config = value
+            if option in ("--sandbox"):
+                sandbox = True
+                url = 'http://sandbox.monitis.com/customMonitorApi'
+            
+        try:
+            if apiKey:
+                pass
+            elif sandbox:
+                apiKey = os.environ['MONITIS_SANDBOX_APIKEY']
+            else:
+                apiKey = os.environ['MONITIS_APIKEY']
+        except:
+            apiKey = None
+        try:
+            if apiSecret:
+                pass
+            elif sandbox:
+                apiSecret = os.environ['MONITIS_SANDBOX_SECRETKEY']
+            else:
+                apiSecret = os.environ['MONITIS_SECRETKEY']
+        except:
+            apiSecret = None
 
         # cannot continue without the API key and secret
         if ((apiKey is None) or (apiSecret is None)):
             raise Usage("API key and secret must be specified")
         
         # Monitis server will be used for all requests
-        monitis = MonitisServer(apiKey, apiSecret)
+        if url:
+            monitis = MonitisServer(apiKey, apiSecret, url)
+        else:
+            monitis = MonitisServer(apiKey, apiSecret)
         
         if config:
             # read id, file path, and search depth from config file in CSV

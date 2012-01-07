@@ -44,7 +44,6 @@ class MonitisServer():
         xml = self._apiRequestXml(str('{0}/?apikey={1}&output={2}'+\
                                   '&version={3}&action=getMonitors&tag={4}')\
             .format(self.url,self.apiKey,self.output,self.version,monitorTag))
-        print xml
         root = ElementTree(file=StringIO.StringIO(xml)).getroot()
         monitor = root.find('./monitor/id') # Just the first matching monitor
         # TODO handle multiple monitors with the same tag
