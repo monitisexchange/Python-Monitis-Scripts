@@ -50,7 +50,7 @@ def main(argv=None):
         except:
             apiKey = None
         try:
-            apiSecret = os.environ['MONITIS_SECRET']
+            apiSecret = os.environ['MONITIS_SECRETKEY']
         except:
             apiSecret = None
         monitorTag = "svnMonitor"
