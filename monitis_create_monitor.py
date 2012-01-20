@@ -76,7 +76,7 @@ def main(argv=None):
                 action = 'deleteMonitor'
             if option in ("--sandbox"):
                 sandbox = True
-                url = 'http://sandbox.monitis.com/customMonitorApi'
+                url = 'https://sandbox.monitis.com/customMonitorApi'
         
         try:
             if apiKey:
